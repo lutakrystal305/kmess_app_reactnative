@@ -1,13 +1,31 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TextInput, View, Button } from 'react-native';
+import { Provider } from 'react-redux';
+import store from './storeRedux';
+import { NavigationContainer } from '@react-navigation/native';
+import { createSwitchNavigator } from '@react-navigation/compat';
+import { AuthStack, AppStack } from './navigator/';
+import AuthLoading from './components/Loading/AuthLoading';
+
 
 export default function App() {
+  
+  const RootNavigator = 
+    createSwitchNavigator({
+      AuthLoading: AuthLoading,
+      App: AppStack,
+      Auth: AuthStack
+    }, {
+      initialRouteName: 'AuthLoading'
+    })
+  
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <Provider store={store}>
+      <NavigationContainer style={styles.container}>
+          <RootNavigator />
+      </NavigationContainer>
+    </Provider>
   );
 }
 
