@@ -9,7 +9,6 @@ const SocketMiddleWare = store => next => action => {
         if (!socket) {
             socket = io('https://chat-group-sv.herokuapp.com',{transports: ['polling']});
             let user = store.getState().checkLogged.user;
-            console.log('hallo');
             console.log(action.dataUser.name);
             socket.emit('user-connect',{user: action.dataUser});
         }
@@ -18,8 +17,8 @@ const SocketMiddleWare = store => next => action => {
             store.dispatch({type: 'USERSONLINE', users: data});
         })
         socket.off('server-send-message').on('server-send-message', data => {
-            //console.log(data);
-            store.dispatch({type: 'BEMESS', from: data.from, message: data.message, to: data.to, date: data.date});        })
+            console.log('take');
+            store.dispatch({type: 'BEMESS', from: data.from, message: data.message, to: data.to, img: data.img, date: data.date});        })
     }
     if (socket) {
         if (action.type === 'YOURROOMS') {
@@ -28,6 +27,7 @@ const SocketMiddleWare = store => next => action => {
             }
         }
         if (action.type === 'client-send-message') {
+            console.log(action.message);
             socket.emit('client-send-message', action.message)
         };
         if (action.type === 'ROOMNOW') {

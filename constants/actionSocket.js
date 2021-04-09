@@ -9,3 +9,4 @@ export const YOURROOMS = 'YOURROOMS';
 export const APIMESS = 'APIMESS';
 export const ROOMNOW = 'ROOMNOW';
 export const LEAVEROOM ='LEAVEROOM';
+export const LOADMESS = 'LOADMESS';

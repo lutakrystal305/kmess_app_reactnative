@@ -48,7 +48,7 @@ export default HomeScreen = ({ navigation }) => {
             {items.length > 0 && <FlatList 
                 data={items}
                 renderItem={({ item }) => 
-                <ItemChat x={item} onPress={() => {navigation.navigate('Message', {_id: item._id, name: item.name});
+                <ItemChat x={item} onPress={() => {navigation.navigate('Message', {_id: item._id, name: item.name, avt: item.avt});
                     dispatch({type: 'ROOMNOW', roomNow: item})} } />
                 }
                 keyExtractor={item => `${item._id}`}

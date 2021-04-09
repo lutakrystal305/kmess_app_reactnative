@@ -12,21 +12,12 @@ export default SignUp = () => {
     const [valuePass, setValuePass] = useState('');
     const [valueGender, setValueGender] = useState('');
     const [valueName, setValueName] = useState('');
-    const [urlFile, setUrlFile] = useState('');
     const [checked, setChecked] = useState('male');
 
     const validateMail = new RegExp(/^([a-z0-9]{6,25})?(@gmail.com)$/g);
     const validatePass = new RegExp(/^([a-z0-9]{6,20})$/g);
     const validateName = new RegExp(/^([a-zA-Z]{2,20}?)$/g);
 
-    const base64File = (file) => {
-        const reader = new FileReeader();
-        reader.readAsDataURL(file);
-        reader.onloadend = () => {
-            console.log(reader.result);
-            setUrlFile(reader.result);
-        }
-    }
     const handleClick = () => {
         setPress(true);
         if (validateName.test(valueName) === false) {
@@ -52,12 +43,13 @@ export default SignUp = () => {
             setPress(false);
             Alert.alert('Your gender was wrong!!!')
         } else {
+            let urlAvt =  checked === 'male' ? 'https://res.cloudinary.com/den6tpnab/image/upload/v1616803856/boy_i2qi8e.png' : 'https://res.cloudinary.com/den6tpnab/image/upload/v1616803821/girl_aierwx.png';
             let newUser = {
                 name: valueName,
                 email: valueMail,
                 password: valuePass,
                 sex: checked,
-                urlAvt: urlFile
+                urlAvt
             };
             console.log(newUser);
             axios

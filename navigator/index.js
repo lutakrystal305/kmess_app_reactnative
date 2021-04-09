@@ -1,6 +1,8 @@
 import React from 'react';
+import { View, Image, Text } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import HomeScreen from '../screens/Home.Screen';
 import MessageScreen from '../screens/Message.Screen';
@@ -12,7 +14,10 @@ import Search from '../components/chat/SearchGroup';
 import SearchGroup from '../components/chat/SearchGroup';
 import FindRoomScreen from '../screens/FindRoom.Screen';
 import CreateRoomScreen from '../screens/CreateRoom.Screen';
-import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
+import GuestProfileScreen from '../screens/GuestProflie.Screen';
+import ItemGroupScreen from '../screens/ItemGroup.Screen';
+import TitleMessGroup from '../components/chat/TitleMessGroup';
+
 
 
 const Stack = createStackNavigator();
@@ -32,16 +37,18 @@ export const AuthStack = () => {
                      title: 'Community',
                      headerRight: () => <SearchGroup onPress={() => navigation.navigate('FindStack')} />
                      })} />
+          <Stack.Screen name='GuestProfileStack' component={GuestProfileScreen}  options={({ route }) => ({ title: route.params.x.name })}/>           
       </Stack.Navigator>
     )
   }
   const ProfileStack = () => {
     return(
       <Stack.Navigator >
-          <Stack.Screen name='ProfileStack' component={ProfileScreen}  options={{ title: 'Profile' }} />
+          <Stack.Screen name='GuestProfileStack' component={ProfileScreen}  options={{ title: 'Profile' }} />
       </Stack.Navigator>
     )
   }
+  
   const HomeStack = ({ navigation, route }) => {
     React.useLayoutEffect(() => {
       const routeName = getFocusedRouteNameFromRoute(route);
@@ -58,7 +65,8 @@ export const AuthStack = () => {
         title: 'Home',
         headerRight: () => <SearchGroup onPress={() => navigation.navigate('FindStack')} />
         })} />
-      <Stack.Screen name='Message' component={MessageScreen}  options={({ route }) => ({ title: route.params.name, tabBarVisible: false })} />
+      <Stack.Screen name='Message' component={MessageScreen}  options={({ route, navigation }) => ({headerTitle: () => <TitleMessGroup onPress={() => navigation.navigate('ItemGroupStack', {name: route.params.name})} name={route.params.name} avt={route.params.avt} />, tabBarVisible: false })} />
+      <Stack.Screen name='ItemGroupStack' component={ItemGroupScreen}  options={({ route }) => ({ title: route.params.name, tabBarVisible: false })} />
       <Stack.Screen name='CreateStack' component={CreateRoomScreen}  options={{ title: 'Create new group' }} />
       <Stack.Screen name='FindStack' component={FindRoomScreen}  options={{ title: 'Find group' }} />
     </Stack.Navigator>

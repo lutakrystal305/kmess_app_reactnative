@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, SafeAreaView, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, FlatList, TouchableOpacity, Image } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 
@@ -10,9 +10,18 @@ export default CommunityScreen = ({ navigation }) => {
     const authed = useSelector(state => state.checkLogged);
     const messageSocket = useSelector(state => state.messageSocket);
     const Item = ({ x }) => {
-        //console.log(x.name);
+        let avt;
+        if (x.host) {
+            avt = x.avt ||'https://res.cloudinary.com/den6tpnab/image/upload/v1616803841/group_pxl8uz.png';
+        } else {
+            let avtDefault = x.sex === 'male' ? 'https://res.cloudinary.com/den6tpnab/image/upload/v1616803856/boy_i2qi8e.png' : 'https://res.cloudinary.com/den6tpnab/image/upload/v1616803821/girl_aierwx.png';
+            avt = x.urlAvt || avtDefault;
+        }
         return(
             <TouchableOpacity style={styles.Item} onPress={() => handleNavigate(x)}>
+                <View style={{width: 50, height: 50, marginRight: 10, overflow: 'hidden', borderColor: '#AAA', borderWidth: 1, borderRadius: 2000}}>
+                    <Image source={{uri: avt }} style={{width: '100%', height: '100%', resizeMode: 'cover'}} />
+                </View>
                 <Text style={{textAlign: 'center', color: '#111', fontWeight: 'bold', fontSize: 16}}>{x.name}</Text>
                 {x.groups || x.check ? <View style={{borderWidth: 1, borderColor: '#AAA', borderRadius: 2000, backgroundColor: '#0f0', width: 20, height: 20, marginLeft: 20}}></View> : <Text></Text> }
             </TouchableOpacity>
@@ -29,6 +38,8 @@ export default CommunityScreen = ({ navigation }) => {
                             navigation.navigate('Message', {_id: res.data.room._id, name: res.data.room.name});
                         }
                     })
+        } else {
+            navigation.navigate('GuestProfileStack', {x: x});
         }
     }
     const getRooms = () => {
@@ -98,6 +109,6 @@ const styles = StyleSheet.create({
         borderBottomColor: '#AAA',
         borderTopColor: '#AAA',
         textAlign: 'center',
-        height: 40
+        height: 60
     }
 })

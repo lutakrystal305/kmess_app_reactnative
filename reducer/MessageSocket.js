@@ -27,7 +27,11 @@ const myReducer = (state = initialState, action) => {
         //console.log(x.to);
         state.yourRooms.forEach((y) => {
             if (y._id.toString() === x.to._id) {
-                y.topMess = x;
+                if (x.img) {
+                    let z = `${x.from.name} sent a picture!`;
+                    y.topMess = {...x, message: z};
+                }
+                else y.topMess = x;
             }
         })
     }
@@ -45,7 +49,7 @@ const myReducer = (state = initialState, action) => {
         case types.YOURROOMS : 
             return {...state, yourRooms: action.yourRooms};
         case types.BEMESS : {
-            upMessage({from: action.from, message:action.message, to: action.to, date: action.date});
+            upMessage({from: action.from, message:action.message, to: action.to, date: action.date, img: action.img});
             let a;
             for (let i=0; i< state.yourRooms.length; i++) {
                 if (state.yourRooms[i]._id.toString() === action.to._id) {
@@ -53,11 +57,11 @@ const myReducer = (state = initialState, action) => {
                 }
             }
             if (action.to._id !== state.roomNow._id) {
-                addTop({from: action.from, message:action.message, to: action.to, date: action.date})
+                addTop({from: action.from, message:action.message, to: action.to, date: action.date, img: action.img})
                 return {...state, isNoti: true, yourRooms: [state.yourRooms[a], ...state.yourRooms.slice(0,a), ...state.yourRooms.slice(a+1)]};
             } else {
-                addTop({from: action.from, message:action.message, to: action.to, date: action.date});
-                let chat=  {from: action.from, message: action.message, to:action.to, date:action.date};
+                addTop({from: action.from, message:action.message, to: action.to, date: action.date, img: action.img});
+                let chat=  {from: action.from, message: action.message, to:action.to, date:action.date, img: action.img, _id: Math.random()};
                 return {...state, newMess: chat, messages: [chat, ...state.messages], yourRooms: [state.yourRooms[a], ...state.yourRooms.slice(0,a), ...state.yourRooms.slice(a+1)]};
             }
         }     

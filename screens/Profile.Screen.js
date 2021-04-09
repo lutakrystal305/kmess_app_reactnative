@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Image, Text, View, Linking, StyleSheet, TouchableOpacity, Pressable, Modal } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Permissions } from 'expo';
 import { Camera } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 
-export default ProfileScreen = () => {
+export default ProfileScreen = ({ navigation }) => {
+    const dispatch = useDispatch();
     const authed = useSelector(state => state.checkLogged);
     const [urlFile, setUrlFile] = useState(null);
     const [imgAvt, setImgAvt] = useState('');
@@ -15,6 +16,12 @@ export default ProfileScreen = () => {
     const [checkCam, setCheckCam] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
 
+    const handleSignOut = () => {
+        dispatch({type: 'LOGOUT'});
+        dispatch({type: 'UNAUTHED'});
+        navigation.navigate('Auth');
+      };
+    
     const permissionCamera = async () => {
         setModalVisible(false);
         const { status } = await Camera.requestPermissionsAsync();
@@ -62,17 +69,9 @@ export default ProfileScreen = () => {
         }
       };
     //const { data } = await Camera.takePictureAsync();
-    const base64File = (file) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onloadend = () => {
-            console.log(reader.result);
-            setUrlFile(reader.result);
-        }
-    }
     const handleCancel = () => {
         setUrlFile('');
-        setImgAvt('');
+        setImgAvt(authed.user.urlAvt);
     }
     const handleUpImage = (data) => {
         axios
@@ -86,8 +85,8 @@ export default ProfileScreen = () => {
         console.log(urlFile, '****');
         const data = new FormData()
             data.append('file', urlFile)
-            data.append('upload_preset', 'chat_default')
-            data.append("cloud_name", "den6tpnab")
+            data.append('upload_preset', 'chat_default');
+            data.append("cloud_name", "den6tpnab");
             fetch("https://api.cloudinary.com/v1_1/den6tpnab/image/upload", {
             method: "post",
             body: data
@@ -130,51 +129,65 @@ export default ProfileScreen = () => {
             </View>
         )
     }
-    /*useEffect(() => {
-        base64File(data);
-    }, [data]);*/
+
     useEffect(() => {
-        setImgAvt(authed.user.urlAvt);
+        authed.user.urlAvt && setImgAvt(authed.user.urlAvt);
     },[authed.user]);
     return(
         authed.user && 
         !checkCam ?
         <View style={styles.container}>
-             <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => {
-                setModalVisible(false);
-                }}
-            >
-                <View style={styles.centeredView}>
-                <View style={styles.modalView}>
-                    <TouchableOpacity style={styles.ModalItem}><Text>Watch</Text></TouchableOpacity>
-                    <TouchableOpacity style={styles.ModalItem} onPress={permissionCamera} ><Text>Take Photo</Text></TouchableOpacity>
-                    <TouchableOpacity style={styles.ModalItem} onPress={permissionGallery}><Text>Choose a picture</Text></TouchableOpacity>
-                </View>
-                </View>
-            </Modal>
-            <Pressable style={{width: 200, height: 200, overflow: 'hidden', borderWidth: 1, borderColor: '#AAA', borderRadius: 2000}} onPress={() => setModalVisible(true)}>
-                {imgAvt ? <Image source={{uri: imgAvt}} style={{width: '100%', height: '100%'}} /> : <Text></Text>}
+            <View style={styles.viewTop}>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalVisible}
+                    onRequestClose={() => {
+                    setModalVisible(false);
+                    }}
+                >
+                    <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                        <TouchableOpacity style={styles.ModalItem} onPress={() => setModalVisible(false)}><Text>Watch</Text></TouchableOpacity>
+                        <TouchableOpacity style={styles.ModalItem} onPress={permissionCamera} ><Text>Take Photo</Text></TouchableOpacity>
+                        <TouchableOpacity style={styles.ModalItem} onPress={permissionGallery}><Text>Choose a picture</Text></TouchableOpacity>
+                    </View>
+                    </View>
+                </Modal>
+                <Pressable style={{width: 200, height: 200, overflow: 'hidden', borderWidth: 1, borderColor: '#AAA', borderRadius: 2000}} onPress={() => setModalVisible(true)}>
+                    {imgAvt ? <Image source={{uri: imgAvt}} style={{width: '100%', height: '100%'}} /> : <Text></Text>}
 
-            </Pressable>
-            {urlFile ?  <View>
-                <TouchableOpacity onPress={handleCancel}><Text>Cancel</Text></TouchableOpacity>
-                <TouchableOpacity onPress={handleSubmit}><Text>Save</Text></TouchableOpacity>
-            </View> : <Text></Text>}
+                </Pressable>
+                {urlFile ?  <View>
+                    <TouchableOpacity onPress={handleCancel}><Text>Cancel</Text></TouchableOpacity>
+                    <TouchableOpacity onPress={handleSubmit}><Text>Save</Text></TouchableOpacity>
+                </View> : <Text></Text>}
+            </View>
             <View style={styles.formInfor}>
                 <View style={styles.itemInfor}>
-                    <Text>{authed.user.name}</Text>
+                    <Text style={{fontSize: 16, fontWeight: 'bold', color: '#88a09e'}}>Name: </Text>
+                    <Text style={{fontSize: 16, color: '#9956d5'}}>{authed.user.name}</Text>
                 </View>
                 <View style={styles.itemInfor}>
-                    <Text>{authed.user.email}</Text>
+                    <Text style={{fontSize: 16, fontWeight: 'bold', color: '#27d978'}}>Email: </Text>
+                    <Text style={{fontSize: 16, color: '#9f4671'}}>{authed.user.email}</Text>
                 </View>
                 <View style={styles.itemInfor}>
-                    <Text>{authed.user.date}</Text>
+                    <Text style={{fontSize: 16, fontWeight: 'bold', color: '#d7c622'}}>Gender: </Text>
+                    <Text style={{fontSize: 16, color: '#254d99'}}>{authed.user.sex}</Text>
+                </View>
+                {authed.user.date && <View style={styles.itemInfor}>
+                    <Text style={{fontSize: 16, fontWeight: 'bold', color: '#26d756'}}>Date of Birth: </Text>
+                    <Text style={{fontSize: 16, color: '#242242'}}>{authed.user.date}</Text>
+                </View>}
+                <View style={styles.itemInfor1}>
+                    <Text style={{fontSize: 16, marginBottom: 10, fontWeight: 'bold', color: '#5656d7'}}>Date of initialization: </Text>
+                    <Text style={{fontSize: 16, color: '#da6b77'}}>{authed.user.update}</Text>
                 </View>
             </View>
+            <TouchableOpacity onPress={handleSignOut} style={{marginVertical: 10}}>
+                <Text style={{textAlign: 'center', fontWeight: 'bold', fontSize: 18, color: '#2476d9'}}>Log Out</Text>
+            </TouchableOpacity>
         </View>
         : <Photo />
     )
@@ -183,6 +196,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1
     },
+    viewTop: {
+        flex: 0.55,
+        alignItems: 'center',
+    },  
     Up: {
         backgroundColor: '#AAA',
         opacity: 0.5,
@@ -191,6 +208,8 @@ const styles = StyleSheet.create({
         marginLeft: 'auto',
         marginRight: 'auto',
         width: '80%',
+        borderWidth: 1,
+        borderColor: '#AAA',
         backgroundColor: '#EEE',
         borderRadius: 20,
         flex: 1,
@@ -198,10 +217,27 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     itemInfor: {
+        paddingVertical: 10,
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
         borderTopWidth: 1,
         borderBottomWidth: 1,
-        borderBottomColor: '#777',
-        borderTopColor: '#AAA',
+        borderBottomColor: '#f00',
+        borderTopColor: '#0f0',
+        marginVertical: 15,
+        overflow: 'hidden'
+    },
+    itemInfor1: {
+        paddingVertical: 10,
+        flex: 0.3,
+        alignItems: 'center',
+        borderTopWidth: 1,
+        borderBottomWidth: 1,
+        borderBottomColor: '#08a7c1',
+        borderTopColor: '#b6c764',
+        marginVertical: 15,
+        overflow: 'hidden'
     },
     camera: {
         flex: 1,
